@@ -22,7 +22,7 @@ permissions:
 
 env:
   # Festgenagelt. 2.7.11 ist die letzte Fassung, die auf JDK 8 laeuft.
-  CDX_VERSION: '2.8.0'
+  CDX_VERSION: '2.9.1'
 
 jobs:
   build:
