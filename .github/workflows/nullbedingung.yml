@@ -1,0 +1,49 @@
+# Nullbedingung nach docs/spec.md Paragraph 34 im Automatisierungs-Repo
+# WeierE1/CRA-Private, Issue #10.
+#
+#   Baut und testet dieses Projekt in der CI gruen, OHNE fremde Zugangsdaten
+#   und OHNE private Registry-Zugaenge?
+#
+# Wenn nicht, kann der Migrations-Agent "Migration noetig" nicht von "Umgebung
+# fehlt" unterscheiden - die Vorpruefung gegen den Zielzweig hilft dann nicht,
+# weil beide Zweige rot sind.
+#
+# Das JDK ist FESTGENAGELT. Nicht das, was auf dem Runner zufaellig liegt:
+# sonst misst die Nullbedingung den Runner und nicht das Projekt.
+name: nullbedingung
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: JDK 25 einrichten
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Bauen und testen
+        run: mvn -B -ntp verify
+
+      # Die Rohdatei mit den Test-Identitaeten fuer das Tor aus Paragraph 24.
+      # Auch bei rotem Lauf - das ist genau der Fall, den das Tor untersucht.
+      - name: Surefire-XML als Artefakt ablegen
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: surefire-reports
+          path: '**/target/surefire-reports/*.xml'
+          if-no-files-found: warn
+          retention-days: 30
