@@ -20,6 +20,10 @@ on:
 permissions:
   contents: read
 
+env:
+  # Festgenagelt. 2.7.11 ist die letzte Fassung, die auf JDK 8 laeuft.
+  CDX_VERSION: '2.8.0'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -47,3 +51,95 @@ jobs:
           path: '**/target/surefire-reports/*.xml'
           if-no-files-found: warn
           retention-days: 30
+
+      # --- SBOM nach docs/spec.md Paragraph 8, Issue #21 ----------------------
+      # CycloneDX AUS DEM BUILD, im selben Lauf und aus denselben Quellen wie
+      # das Artefakt. Nicht danach, nicht aus einem Checkout woanders.
+      # Gegen den EINGECHECKTEN Abhaengigkeitsstand - ein Generator, der
+      # Versionen zur Bauzeit aufloest, erzeugt eine Liste, die spaeter niemand
+      # reproduzieren kann, und verfehlt damit den Zweck.
+      - name: SBOM erzeugen
+        if: always()
+        run: |
+          mvn -B -ntp org.cyclonedx:cyclonedx-maven-plugin:${CDX_VERSION}:makeAggregateBom \
+            -DoutputDirectory=sbom \
+            -DoutputName=bom \
+            -DoutputFormat=json \
+            -DschemaVersion=1.5 \
+            -DincludeTestScope=true
+          ls -la sbom
+
+      # --- V8 messen (spec.md Paragraph 35) -----------------------------------
+      #   Erzeugt der CycloneDX-Schritt Scope und transitive Komponenten?
+      # Nicht annehmen. Paragraph 8.1 verlangt beides: den Scope, weil er in
+      # Paragraph 12 die Dringlichkeit lesbar macht, und die transitiven
+      # Komponenten, weil Ausgang 3 des Reconcilers sonst kein Material hat.
+      - name: V8 messen - Scope und transitive Komponenten
+        if: always()
+        run: |
+          B=sbom/bom.json
+          test -f "$B" || { echo "Keine SBOM erzeugt"; exit 1; }
+          komponenten=$(grep -oc '"purl"' "$B" || echo 0)
+          mit_scope=$(grep -oc '"scope"' "$B" || echo 0)
+          direkte=$(grep -c '<dependency>' pom.xml || echo 0)
+          hat_graph=$(grep -oc '"dependencies"' "$B" || echo 0)
+          {
+            echo "## V8 gemessen (spec.md Paragraph 8.1, Paragraph 35)"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Komponenten mit \`purl\` | $komponenten |"
+            echo "| Eintraege mit \`scope\` | $mit_scope |"
+            echo "| \`<dependency>\` im Wurzel-POM | $direkte |"
+            echo "| \`dependencies\`-Graph vorhanden | $hat_graph |"
+            echo
+            if [ "$komponenten" -gt "$direkte" ]; then
+              echo "**Transitive Komponenten: ja.** $komponenten Komponenten gegen $direkte"
+              echo "direkte Deklarationen im Wurzel-POM."
+            else
+              echo "**Transitive Komponenten: NEIN.** Nur $komponenten Komponenten bei"
+              echo "$direkte direkten Deklarationen - das ist ein Befund fuer die"
+              echo "Abdeckungsaussage, kein Grund, es trotzdem zu behaupten."
+            fi
+            echo
+            if [ "$mit_scope" -gt 0 ]; then
+              echo "**Scope: ja**, $mit_scope Eintraege tragen ihn."
+            else
+              echo "**Scope: NEIN.** Damit ist die Dringlichkeitsaussage aus Paragraph 12.1"
+              echo "nicht belegbar - gehoert in die Abdeckungsaussage (#30)."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # --- Pruefsumme GETRENNT vom Objekt (spec.md Paragraph 13.1) ------------
+      # Eine Pruefsumme im eigenen Objekt schuetzt nichts: wer das eine ersetzt,
+      # ersetzt das andere mit. Deshalb ein eigenes Integritaetslog mit
+      # Objektname, SHA-256, Zeitpunkt und erzeugendem Lauf.
+      - name: Pruefsumme getrennt aufzeichnen
+        if: always()
+        run: |
+          test -f sbom/bom.json || exit 0
+          {
+            echo "objekt=bom.json"
+            echo "sha256=$(sha256sum sbom/bom.json | cut -d' ' -f1)"
+            echo "groesse=$(stat -c%s sbom/bom.json)"
+            echo "commit=${GITHUB_SHA}"
+            echo "lauf=${GITHUB_RUN_ID}"
+            echo "repo=${GITHUB_REPOSITORY}"
+            echo "erzeugt=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } > sbom/integritaet.properties
+          cat sbom/integritaet.properties
+
+      # Die Datei ist das Archiv. Dependency-Track ist die Abfrageschicht
+      # darueber und ersetzbar (Paragraph 8.2, Paragraph 13). Deshalb liegt sie
+      # hier ab, BEVOR irgendetwas hochgeladen wird - der Upload passiert auf
+      # dem Host aus E23, weil DT nur auf 127.0.0.1 hoert.
+      - name: SBOM und Integritaetslog als Artefakt ablegen
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: sbom
+          path: |
+            sbom/bom.json
+            sbom/integritaet.properties
+          if-no-files-found: error
+          retention-days: 90
