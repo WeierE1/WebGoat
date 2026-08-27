@@ -1,21 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "//": [
-    "VORLAGE für die renovate.json JE FORK. Sie wird in den Fork gelegt, nicht",
-    "hierher — hier steht nur, was hineingehört.",
-    "",
-    "spec.md §15.3: »Ein zentrales Konfigurationsrepository hält das gemeinsame",
-    "Preset; jedes Repository erweitert es und ergänzt nur wirklich Lokales.«",
-    "Deshalb ist diese Datei so kurz, und deshalb soll sie kurz bleiben: jede",
-    "Zeile, die hier statt im Preset steht, driftet zwischen den Forks.",
-    "",
-    "Die Ausnahmen nach §28.2 kommen später HIER hinein, nicht ins Preset — sie",
-    "sind repo-spezifisch, tragen ein Review-Datum als Kommentarzeile und sind",
-    "damit versioniert und lesbar.",
-    "",
-    "ACHTUNG: das Preset wird vom DEFAULT-BRANCH von WeierE1/CRA-Private",
-    "gelesen. Solange es dort nicht liegt, schlägt der Lauf fehl — sichtbar,",
-    "nicht still."
+  "description": [
+    "VORLAGE fuer die renovate.json je Fork. spec.md 15.3: ein zentrales Konfigurationsrepository haelt das gemeinsame Preset, jedes Repository erweitert es und ergaenzt nur wirklich Lokales.",
+    "Deshalb ist diese Datei kurz, und deshalb soll sie kurz bleiben - jede Zeile, die hier statt im Preset steht, driftet zwischen den Forks.",
+    "Die Ausnahmen nach 28.2 kommen spaeter HIER hinein, nicht ins Preset: sie sind repo-spezifisch und tragen ein Review-Datum.",
+    "Renovate akzeptiert KEINE //-Schluessel als Kommentar - nur description. Gemessen am 26.08.2026: Invalid configuration option: //"
   ],
   "extends": ["github>WeierE1/CRA-Private//renovate-presets/kontext-a"]
 }
