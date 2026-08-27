@@ -14,6 +14,8 @@ diesem Katalog.
 
 | PR | Merged (UTC) | Title | Issues | Size | Detail |
 |---|---|---|---|---|---|
+| [pr-003](https://github.com/WeierE1/WebGoat/pull/3) | 2026-08-27 09:37 | CLAUDE.md: Rolle im CRA-Piloten, Regeln, Katalog-Pflicht | — | +31/−0 · 1 | [→](pr-003-claude-md-rolle-regeln-katalog.md) |
+| [pr-002](https://github.com/WeierE1/WebGoat/pull/2) | 2026-08-27 09:30 | Change catalogue anlegen | — | +81/−0 · 2 | [→](pr-002-change-catalogue-anlegen.md) |
 | [pr-001](https://github.com/WeierE1/WebGoat/pull/1) | 2026-08-27 07:05 | Renovate-Konfiguration: description statt // | CRA-Private#24 | +7/−9 · 1 | [→](pr-001-renovate-konfiguration-description.md) |
 
 <!-- INDEX:END -->
