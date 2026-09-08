@@ -88,3 +88,35 @@ bezahlbar; über die OS-Matrix kostet sie ~45 min und ist es kaum.
   scheiterte, weil `spotless-maven-plugin:3.9.0` nicht aufgelöst werden konnte
   (Repo-/Netzfehler des Runners); derselbe Stand baute auf `ubuntu-latest` und
   `windows-latest` grün. Infrastruktur-, kein Projektbefund.
+
+## Was „grün" nach §18.4 heißt — die maßgeblichen Prüfungen
+
+**Menschliche Entscheidung vom 08.09.2026** (CRA-Private #44). Dieser Abschnitt
+ist **nicht gemessen, sondern gesetzt** — anders als alles darüber.
+
+Maßgeblich ist **`nullbedingung`** (`mvn -B -ntp verify`, JDK 25). Nur diese
+Prüfung entscheidet, ob ein Vorschlag des Anhebungs-Agenten als grün im Sinne
+von §18.4 gilt.
+
+**`Main / Pull requests build` ist nicht maßgeblich.** Grund, gemessen am
+08.09.2026: Lauf
+[34275974701](https://github.com/WeierE1/WebGoat/actions/runs/34275974701) auf
+`main` (`b154c3c`, ohne jede Änderung des Agenten) endete mit
+`build (windows-latest)` **failure** —
+`org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL
+"drop schema CONTAINER"` — und `ubuntu-latest` sowie `macos-15-intel`
+**cancelled** durch `fail-fast` der seriellen Matrix. Derselbe Commit ist unter
+`nullbedingung` **success**. „Alle Prüfungen grün" ist auf diesem Fork also aus
+einem Grund unerreichbar, der nichts mit dem Vorschlag zu tun hat; wer daran
+messen würde, zählte jeden Durchlauf als Fehlversuch und gäbe nach drei
+Durchläufen auf (§18.4) — mit einem Issue, das die falsche Ursache nennt.
+
+Daraus folgen zwei Pflichten, und die zweite ist die wichtigere:
+
+- Ein rotes **fremdes** Ergebnis wird im Bericht **zitiert**, mit Lauf-ID und
+  Ursache. Es wird nicht verschwiegen.
+- Es zählt **nicht** als Fehlversuch und löst kein `ISSUE_ENGINE_GESCHEITERT`
+  aus.
+
+Wird die Windows-Ursache behoben, gehört `Main / Pull requests build` hierher —
+dann annotiert mit Datum, nicht still ersetzt.
