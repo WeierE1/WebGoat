@@ -1,13 +1,13 @@
 # pr-001 — Renovate-Konfiguration: description statt //
 
-| | |
-|---|---|
-| PR | [WeierE1/WebGoat#1](https://github.com/WeierE1/WebGoat/pull/1) |
-| Branch | `fix/renovate-config` → `main` |
-| Merged | 2026-08-27 07:05 UTC |
-| Size | +7 / −9 über 1 Datei |
-| Issues | CRA-Private#24 (Schritt H) |
-| Review | kein menschliches Review; Merge durch den Repo-Inhaber |
+|        |                                                                |
+|--------|----------------------------------------------------------------|
+| PR     | [WeierE1/WebGoat#1](https://github.com/WeierE1/WebGoat/pull/1) |
+| Branch | `fix/renovate-config` → `main`                                 |
+| Merged | 2026-08-27 07:05 UTC                                           |
+| Size   | +7 / −9 über 1 Datei                                           |
+| Issues | CRA-Private#24 (Schritt H)                                     |
+| Review | kein menschliches Review; Merge durch den Repo-Inhaber         |
 
 ## 1. Why
 
@@ -23,9 +23,9 @@ je Fork nur wirklich Lokales).
 
 ## 3. Files
 
-| Path | Change |
-|---|---|
-| `renovate.json` | +7/−9 |
+|      Path       | Change |
+|-----------------|--------|
+| `renovate.json` | +7/−9  |
 
 ## 4. Verification
 
