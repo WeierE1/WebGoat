@@ -99,17 +99,24 @@ Prüfung entscheidet, ob ein Vorschlag des Anhebungs-Agenten als grün im Sinne
 von §18.4 gilt.
 
 **`Main / Pull requests build` ist nicht maßgeblich.** Grund, gemessen am
-08.09.2026: Lauf
-[34275974701](https://github.com/WeierE1/WebGoat/actions/runs/34275974701) auf
-`main` (`b154c3c`, ohne jede Änderung des Agenten) endete mit
-`build (windows-latest)` **failure** —
+08.09.2026 an **zwei** Läufen mit fast demselben Baum und verschiedenem Ausgang:
+
+|                                    Lauf                                    |                       Stand                        | `nullbedingung` | `build (windows-latest)` |       ubuntu / macOS        |
+|----------------------------------------------------------------------------|----------------------------------------------------|-----------------|--------------------------|-----------------------------|
+| [34275974701](https://github.com/WeierE1/WebGoat/actions/runs/34275974701) | `main` `b154c3c`, ohne jede Änderung eines Agenten | success         | **failure**              | **cancelled** (`fail-fast`) |
+| [34278832426](https://github.com/WeierE1/WebGoat/actions/runs/34278832426) | dieser PR, eine Markdown-Datei darüber             | success         | success                  | success                     |
+
+Die Ursache im ersten Lauf war
 `org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL
-"drop schema CONTAINER"` — und `ubuntu-latest` sowie `macos-15-intel`
-**cancelled** durch `fail-fast` der seriellen Matrix. Derselbe Commit ist unter
-`nullbedingung` **success**. „Alle Prüfungen grün" ist auf diesem Fork also aus
-einem Grund unerreichbar, der nichts mit dem Vorschlag zu tun hat; wer daran
-messen würde, zählte jeden Durchlauf als Fehlversuch und gäbe nach drei
-Durchläufen auf (§18.4) — mit einem Issue, das die falsche Ursache nennt.
+"drop schema CONTAINER"` — ein **Flake**, kein Dauerzustand; der zweite Lauf
+belegt das. `fail-fast` der seriellen Matrix macht daraus **drei** rote bzw.
+abgebrochene Ergebnisse aus einer Ursache.
+
+**Und genau deshalb ist diese Prüfung nicht maßgeblich.** Ein Flake in einer
+nicht maßgeblichen Prüfung würde jeden Durchlauf des Anhebungs-Agenten als
+Fehlversuch zählen; nach drei Durchläufen gäbe er auf (§18.4) — mit einem
+`ISSUE_ENGINE_GESCHEITERT`, das die falsche Ursache nennt. Für die maßgebliche
+Prüfung gilt das Gegenteil und bleibt es: **rot ist rot, kein Flake-Wissen.**
 
 Daraus folgen zwei Pflichten, und die zweite ist die wichtigere:
 
