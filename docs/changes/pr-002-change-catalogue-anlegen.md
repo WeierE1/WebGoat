@@ -1,12 +1,12 @@
 # pr-002 — Change catalogue anlegen
 
-| | |
-|---|---|
-| PR | [WeierE1/WebGoat#2](https://github.com/WeierE1/WebGoat/pull/2) |
-| Merged | 2026-08-27 09:30 UTC |
-| Size | +81/−0 über 2 Datei(en) |
-| Issues | keine — Doku-Nachzug aus WeierE1/CRA-Private |
-| Review | kein menschliches Review; Merge durch den Repo-Inhaber |
+|        |                                                                |
+|--------|----------------------------------------------------------------|
+| PR     | [WeierE1/WebGoat#2](https://github.com/WeierE1/WebGoat/pull/2) |
+| Merged | 2026-08-27 09:30 UTC                                           |
+| Size   | +81/−0 über 2 Datei(en)                                        |
+| Issues | keine — Doku-Nachzug aus WeierE1/CRA-Private                   |
+| Review | kein menschliches Review; Merge durch den Repo-Inhaber         |
 
 ## 1. Why
 
