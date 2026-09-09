@@ -1,0 +1,153 @@
+# Die Katalogpflicht als Tor, und das Nachtragen als Automatik.
+#
+# Die Pflicht "je gemergtem PR ein Eintrag in docs/changes/" stand zwei Wochen
+# in CLAUDE.md und wurde fuenfmal nicht erfuellt (pr-064 bis pr-068). Dasselbe
+# Argument wie bei der Schichtgrenze aus spec.md Paragraph 6: eine Regel, die
+# nur in der Dokumentation existiert, wird beim ersten Zeitdruck durchbrochen.
+#
+# Zwei Jobs, zwei Ausloeser:
+#
+#   pruefen     bei jedem Push auf einen Pull Request -- gibt es einen
+#               vollstaendigen Eintrag? Nur lesen.
+#   nachtragen  beim Merge -- fuellt Merge-Zeitpunkt und Groesse, die vorher
+#               niemand kennen kann, und committet sie nach main.
+name: katalog
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+# Standard: nur lesen. Der schreibende Job hebt das fuer sich allein an.
+permissions:
+  contents: read
+
+concurrency:
+  # Nicht abbrechen: der nachtragen-Job schreibt, und ein halb geschriebener
+  # Commit ist schlimmer als ein spaeter.
+  group: katalog-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  pruefen:
+    # Beim `closed`-Ereignis ist das Tor gegenstandslos -- da entscheidet der
+    # nachtragen-Job.
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Katalogeintrag pruefen
+        env:
+          # Der PR-Text kommt ueber die Umgebung, nicht ueber die
+          # Kommandozeile: er ist fremder Text und hat in keiner Shell-Zeile
+          # etwas zu suchen.
+          PR_BODY: ${{ github.event.pull_request.body }}
+          # Der Branchname entscheidet ueber die Engine-Ausnahme: ein Vorschlag
+          # von Renovate oder einem Agenten darf nach Paragraph 18.3 nur
+          # Manifeste beruehren und KANN keinen Katalogeintrag tragen.
+          PR_BRANCH: ${{ github.head_ref }}
+        run: bash infra/katalog-pruefen.sh "${{ github.event.pull_request.number }}"
+
+      - name: Ergebnis zusammenfassen
+        if: always()
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          {
+            echo "## Katalogpflicht: ${{ job.status }}"
+            echo
+            echo "PR #${{ github.event.pull_request.number }}"
+            echo
+            echo '```'
+            bash infra/katalog-pruefen.sh "${{ github.event.pull_request.number }}" 2>&1 || true
+            echo '```'
+            if [ "${{ job.status }}" != "success" ]; then
+              echo
+              echo "**Der Eintrag gehoert in diesen PR, nicht dahinter.** Ein Nachtrag"
+              echo "kann Abschnitt 4 nicht mehr ehrlich fuellen -- die Ausgaben sind"
+              echo "dann nicht mehr in Reichweite (siehe \`docs/changes/pr-064-*\`)."
+              echo
+              echo "Ablauf: Eintrag anlegen (Skill \`change-catalogue\`), Indexzeile"
+              echo "einfuegen, die zwei Marken stehenlassen -- die Pipeline fuellt sie"
+              echo "beim Merge."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  nachtragen:
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      # Das einzige Schreibrecht in dieser Datei, und es reicht genau fuer den
+      # einen Commit. Kein `pull-requests: write`, kein Administratorrecht.
+      contents: write
+      # BEIM ERSTEN ECHTEN MERGE GELERNT (pr-069, Lauf 33079392251):
+      #   GraphQL: Resource not accessible by integration (repository.pullRequest)
+      # `gh pr view` geht ueber die GraphQL-API und braucht dafuer
+      # `pull-requests: read`. Und der eigentliche Fallstrick: eine
+      # `permissions`-Angabe auf JOB-Ebene ERSETZT die Menge, sie erweitert die
+      # Vorgabe oben nicht. Wer hier nur `contents: write` schreibt, nimmt dem
+      # Job jedes andere Recht -- auch das Leserecht, das er vorher hatte.
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          # Voller Klon: der Push braucht die Historie, und ein flacher Klon
+          # hat hier schon einmal Aerger gemacht (git-commit-id-plugin, pr-051).
+          fetch-depth: 0
+
+      - name: Marken fuellen
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash infra/katalog-nachtragen.sh "${{ github.event.pull_request.number }}"
+
+      - name: Committen, falls sich etwas geaendert hat
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- docs/changes; then
+            echo "Keine Aenderung -- die Marken waren schon gefuellt."
+            exit 0
+          fi
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add docs/changes
+          git commit -m "docs(changes): Merge-Zeitpunkt und Groesse fuer pr-$(printf '%03d' ${{ github.event.pull_request.number }})
+
+          Automatisch nachgetragen von .github/workflows/katalog.yml. Die zwei
+          Felder kann vor dem Merge niemand kennen; alles andere stand schon im
+          Pull Request."
+          # Zwischen Merge und diesem Push kann ein anderer PR gelandet sein.
+          # Deshalb rebasen und einmal wiederholen, statt zu erzwingen -- ein
+          # force-push auf main gibt es hier nicht.
+          for versuch in 1 2 3; do
+            if git push origin HEAD:main; then
+              echo "Gepusht im Versuch $versuch."
+              exit 0
+            fi
+            echo "Push abgelehnt, rebase und neuer Versuch ($versuch)."
+            git pull --rebase --quiet origin main
+          done
+          echo "Push nach drei Versuchen nicht moeglich." >&2
+          exit 1
+
+      - name: Ergebnis zusammenfassen
+        if: always()
+        run: |
+          {
+            echo "## Katalog nachgetragen: ${{ job.status }}"
+            echo
+            echo "PR #${{ github.event.pull_request.number }}"
+            echo
+            grep -nE '^\| (Merged|Size) \|' docs/changes/pr-$(printf '%03d' ${{ github.event.pull_request.number }})-*.md || true
+            if [ "${{ job.status }}" != "success" ]; then
+              echo
+              echo "**Nicht gelaufen.** Die Marken \`pending-datum-…\` und"
+              echo "\`pending-size-…\` stehen dann noch im Eintrag -- sie sind"
+              echo "absichtlich sichtbar. Von Hand nachziehen:"
+              echo '```'
+              echo "bash infra/katalog-nachtragen.sh ${{ github.event.pull_request.number }}"
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
