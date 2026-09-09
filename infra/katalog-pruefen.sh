@@ -140,7 +140,11 @@ fi
 # Eintrag, der die Marke in Abschnitt 4 ZITIERT (weil dort die Ausgabe dieses
 # Tores steht), sah danach aus wie ein ungefuellter Kopf. Gemessen an pr-069.
 dreistellig="$(printf '%03d' "$nummer")"
-kopfzeilen="$(grep -E '^\| (Merged|Size) \|' "$datei" || true)"
+# Die Zellen duerfen ausgerichtet sein: WebGoats spotless formatiert
+# Markdown-Tabellen und macht aus '| Size |' ein '| Size   |'. Ein Tor, das
+# daran scheitert, meldet eine fehlende Marke, die dasteht (gemessen 09.09.2026
+# beim Kopieren dieses Skripts in die Forks).
+kopfzeilen="$(grep -E '^\|[[:space:]]*(Merged|Size)[[:space:]]*\|' "$datei" || true)"
 indexzeile="$(grep -F "$(basename "$datei")" docs/changes/README.md || true)"
 
 for feld in datum size; do
