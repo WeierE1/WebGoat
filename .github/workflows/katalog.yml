@@ -10,7 +10,9 @@
 #   pruefen     bei jedem Push auf einen Pull Request -- gibt es einen
 #               vollstaendigen Eintrag? Nur lesen.
 #   nachtragen  beim Merge -- fuellt Merge-Zeitpunkt und Groesse, die vorher
-#               niemand kennen kann, und committet sie nach main.
+#               niemand kennen kann, und committet sie auf den Zielzweig
+#               des PR (nicht "main": der Standardzweig dieses Forks kann
+#               ein anderer sein).
 name: katalog
 
 on:
@@ -90,10 +92,19 @@ jobs:
       # Vorgabe oben nicht. Wer hier nur `contents: write` schreibt, nimmt dem
       # Job jedes andere Recht -- auch das Leserecht, das er vorher hatte.
       pull-requests: read
+    env:
+      # Der Zielzweig kommt aus dem Ereignis, nicht als Literal. GEMESSEN am
+      # 24.09.2026: `ref: main` scheiterte auf spring-petclinic-vorfuehrung
+      # (Lauf 35985858831, es gibt dort kein `main`) und checkte auf
+      # spring-petclinic den Upstream-Zweig `main` aus, dem das Skript fehlt
+      # (Lauf 35985887614, Exit 127) -- beide Forks arbeiten auf `1.5.x`.
+      # In `run:` nur als "$BASIS": ein Zweigname ist fremder Text und wird
+      # nie per Ausdruck in eine Shell-Zeile eingesetzt.
+      BASIS: ${{ github.event.pull_request.base.ref }}
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: main
+          ref: ${{ github.event.pull_request.base.ref }}
           # Voller Klon: der Push braucht die Historie, und ein flacher Klon
           # hat hier schon einmal Aerger gemacht (git-commit-id-plugin, pr-051).
           fetch-depth: 0
@@ -104,6 +115,8 @@ jobs:
         run: bash infra/katalog-nachtragen.sh "${{ github.event.pull_request.number }}"
 
       - name: Committen, falls sich etwas geaendert hat
+        env:
+          NUMMER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
           if git diff --quiet -- docs/changes; then
@@ -120,14 +133,35 @@ jobs:
           Pull Request."
           # Zwischen Merge und diesem Push kann ein anderer PR gelandet sein.
           # Deshalb rebasen und einmal wiederholen, statt zu erzwingen -- ein
-          # force-push auf main gibt es hier nicht.
+          # force-push auf den Zielzweig gibt es hier nicht.
+          #
+          # AUSNAHME: ein Ruleset, das einen Pull Request verlangt (GH013).
+          # GEMESSEN am 24.09.2026 (WebGoat, Lauf 35985931079). Das ist keine
+          # Wettlaufsituation, ein Rebase aendert daran nichts -- also kein
+          # neuer Versuch, sondern eine eindeutige Meldung und Exit 1. Der Job
+          # bleibt rot, sichtbar und nicht geschoent (Entscheidung 24.09.2026:
+          # das Ruleset bekommt keine Ausnahme fuer GitHub Actions).
           for versuch in 1 2 3; do
-            if git push origin HEAD:main; then
+            if ausgabe=$(git push origin "HEAD:refs/heads/$BASIS" 2>&1); then
+              printf '%s\n' "$ausgabe"
               echo "Gepusht im Versuch $versuch."
               exit 0
             fi
+            printf '%s\n' "$ausgabe" >&2
+            # Here-String statt Pipe: mit pipefail kann `printf | grep -q` am
+            # SIGPIPE scheitern und den Treffer verschlucken.
+            if grep -qE 'GH013|Repository rule violations' <<< "$ausgabe"; then
+              meldung="Ruleset verlangt einen Pull Request auf $BASIS -- Marken dieses PR im naechsten PR von Hand fuellen: bash infra/katalog-nachtragen.sh $NUMMER (Entscheidung 24.09.2026, §32/16 bleibt ohne Ausnahme)"
+              echo "$meldung" >&2
+              {
+                echo "### Push am Ruleset abgelehnt"
+                echo
+                echo "$meldung"
+              } >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
             echo "Push abgelehnt, rebase und neuer Versuch ($versuch)."
-            git pull --rebase --quiet origin main
+            git pull --rebase --quiet origin "$BASIS"
           done
           echo "Push nach drei Versuchen nicht moeglich." >&2
           exit 1

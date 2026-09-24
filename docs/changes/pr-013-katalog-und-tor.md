@@ -4,8 +4,8 @@
 |--------|------------------------------------------------------------------|
 | PR     | [WeierE1/WebGoat#13](https://github.com/WeierE1/WebGoat/pull/13) |
 | Branch | `docs/katalog-und-tor` → `main`                                  |
-| Merged | pending-datum-013                                                |
-| Size   | pending-size-013                                                 |
+| Merged | 2026-09-09 09:07 UTC                                             |
+| Size   | +799 / −8 über 9 Dateien                                         |
 | Issues | CRA-Private#44 (Nachlauf)                                        |
 | Review | Mensch                                                           |
 
