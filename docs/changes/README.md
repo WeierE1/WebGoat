@@ -12,16 +12,17 @@ diesem Katalog.
 
 <!-- INDEX:BEGIN -->
 
-|                          PR                          |   Merged (UTC)    |                                Title                                |     Issues     |       Size       |                      Detail                       |
-|------------------------------------------------------|-------------------|---------------------------------------------------------------------|----------------|------------------|---------------------------------------------------|
-| [pr-016](https://github.com/WeierE1/WebGoat/pull/16) | 2026-09-24 10:12 | Renovate-Preset-Verweis auf WeierE1/cra-renovate-presets umgestellt | —              | +65/−10 · 3 | [→](pr-016-renovate-preset-umzug.md)              |
-| [pr-013](https://github.com/WeierE1/WebGoat/pull/13) | 2026-09-09 09:07 | Katalogrückstand aufholen und das Tor mitziehen                     | CRA-Private#44 | +799/−8 · 9 | [→](pr-013-katalog-und-tor.md)                    |
-| [pr-010](https://github.com/WeierE1/WebGoat/pull/10) | 2026-09-09 06:01  | PR-PROFILE.md aus echtem Lauf                                       | CRA-Private#35 | +129/−0 · 1      | [→](pr-010-pr-profile-aus-echtem-lauf.md)         |
-| [pr-012](https://github.com/WeierE1/WebGoat/pull/12) | 2026-09-08 20:38  | Katalogdateien nach spotless formatieren                            | CRA-Private#44 | +35/−35 · 4      | [→](pr-012-katalogdateien-spotless.md)            |
-| [pr-009](https://github.com/WeierE1/WebGoat/pull/9)  | 2026-08-27 09:40  | Katalog: Doku-PRs nachgetragen                                      | —              | +72/−0 · 3       | [→](pr-009-katalog-doku-prs-nachgetragen.md)      |
-| [pr-003](https://github.com/WeierE1/WebGoat/pull/3)  | 2026-08-27 09:37  | CLAUDE.md: Rolle im CRA-Piloten, Regeln, Katalog-Pflicht            | —              | +31/−0 · 1       | [→](pr-003-claude-md-rolle-regeln-katalog.md)     |
-| [pr-002](https://github.com/WeierE1/WebGoat/pull/2)  | 2026-08-27 09:30  | Change catalogue anlegen                                            | —              | +81/−0 · 2       | [→](pr-002-change-catalogue-anlegen.md)           |
-| [pr-001](https://github.com/WeierE1/WebGoat/pull/1)  | 2026-08-27 07:05  | Renovate-Konfiguration: description statt //                        | CRA-Private#24 | +7/−9 · 1        | [→](pr-001-renovate-konfiguration-description.md) |
+|                          PR                          |   Merged (UTC)    |                                 Title                                  |     Issues     |       Size       |                      Detail                       |
+|------------------------------------------------------|-------------------|------------------------------------------------------------------------|----------------|------------------|---------------------------------------------------|
+| [pr-017](https://github.com/WeierE1/WebGoat/pull/17) | pending-datum-017 | katalog nachtragen: Zielzweig aus dem Ereignis, Ruleset-Fall eindeutig | —              | pending-size-017 | [→](pr-017-katalog-nachtragen-basiszweig.md)      |
+| [pr-016](https://github.com/WeierE1/WebGoat/pull/16) | 2026-09-24 10:12  | Renovate-Preset-Verweis auf WeierE1/cra-renovate-presets umgestellt    | —              | +65/−10 · 3      | [→](pr-016-renovate-preset-umzug.md)              |
+| [pr-013](https://github.com/WeierE1/WebGoat/pull/13) | 2026-09-09 09:07  | Katalogrückstand aufholen und das Tor mitziehen                        | CRA-Private#44 | +799/−8 · 9      | [→](pr-013-katalog-und-tor.md)                    |
+| [pr-010](https://github.com/WeierE1/WebGoat/pull/10) | 2026-09-09 06:01  | PR-PROFILE.md aus echtem Lauf                                          | CRA-Private#35 | +129/−0 · 1      | [→](pr-010-pr-profile-aus-echtem-lauf.md)         |
+| [pr-012](https://github.com/WeierE1/WebGoat/pull/12) | 2026-09-08 20:38  | Katalogdateien nach spotless formatieren                               | CRA-Private#44 | +35/−35 · 4      | [→](pr-012-katalogdateien-spotless.md)            |
+| [pr-009](https://github.com/WeierE1/WebGoat/pull/9)  | 2026-08-27 09:40  | Katalog: Doku-PRs nachgetragen                                         | —              | +72/−0 · 3       | [→](pr-009-katalog-doku-prs-nachgetragen.md)      |
+| [pr-003](https://github.com/WeierE1/WebGoat/pull/3)  | 2026-08-27 09:37  | CLAUDE.md: Rolle im CRA-Piloten, Regeln, Katalog-Pflicht               | —              | +31/−0 · 1       | [→](pr-003-claude-md-rolle-regeln-katalog.md)     |
+| [pr-002](https://github.com/WeierE1/WebGoat/pull/2)  | 2026-08-27 09:30  | Change catalogue anlegen                                               | —              | +81/−0 · 2       | [→](pr-002-change-catalogue-anlegen.md)           |
+| [pr-001](https://github.com/WeierE1/WebGoat/pull/1)  | 2026-08-27 07:05  | Renovate-Konfiguration: description statt //                           | CRA-Private#24 | +7/−9 · 1        | [→](pr-001-renovate-konfiguration-description.md) |
 
 <!-- INDEX:END -->
 

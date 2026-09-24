@@ -4,8 +4,8 @@
 |--------|------------------------------------------------------------------|
 | PR     | [WeierE1/WebGoat#16](https://github.com/WeierE1/WebGoat/pull/16) |
 | Branch | `chore/renovate-preset-umzug` → `main`                           |
-| Merged | 2026-09-24 10:12 UTC                                                |
-| Size   | +65 / −10 über 3 Dateien                                                 |
+| Merged | 2026-09-24 10:12 UTC                                             |
+| Size   | +65 / −10 über 3 Dateien                                         |
 | Issues | —                                                                |
 | Review | kein menschliches Review; Merge durch den Repo-Inhaber           |
 
