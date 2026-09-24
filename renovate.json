@@ -6,5 +6,5 @@
     "Die Ausnahmen nach 28.2 kommen spaeter HIER hinein, nicht ins Preset: sie sind repo-spezifisch und tragen ein Review-Datum.",
     "Renovate akzeptiert KEINE //-Schluessel als Kommentar - nur description. Gemessen am 26.08.2026: Invalid configuration option: //"
   ],
-  "extends": ["github>WeierE1/CRA-Private//renovate-presets/kontext-a"]
+  "extends": ["github>WeierE1/cra-renovate-presets//kontext-a"]
 }
